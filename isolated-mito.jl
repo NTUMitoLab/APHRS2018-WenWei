@@ -4,6 +4,7 @@ include("ecme-dox.jl")
 
 u0 = collect(u0_tup)
 
+
 function isolated_model(u, p, t)
   (d_vm, d_dpsi, d_m_na, d_h_na, d_j_na, d_x_k, d_na_i, d_k_i, d_ca_i, d_ca_jsr, d_ca_nsr, d_ca_ss, d_ltr_ca, d_htr_ca,
      d_po1, d_po2, d_pc2, d_c0, d_c1, d_c2, d_c3, d_c4, d_o, d_cca0, d_cca1, d_cca2, d_cca3, d_y_ca, d_p0, d_p1, d_p2, d_p3, d_n1,
@@ -29,30 +30,20 @@ end
 param = Params(
   pDOX = DOXParams(DOX=0.0),
   pCK = CKParams(V_ATPASE_CYTO= 1E-5),
-  pC1 = C1Params(SCALE=1e3 * 60),
-  pC3 = C3Params(SCALE=60e3 * 40),
-  pC4 = C4Params(SCALE=60e3 * 30),
-  pC5 = C5Params(ρF1=0.05),
+  pC1 = C1Params(SCALE=1e3 * 20),
+  pC3 = C3Params(SCALE=60e3 * 5),
+  pC4 = C4Params(SCALE=60e3 * 5),
+  pC5 = C5Params(ρF1=1.5),
   pANT = ANTParams(VMAX=5E-3),
-  pSODi = SODParams(ET=1.43E-3 * 0.65),
-  BCL=0)
+  pSODi = SODParams(ET=1.43E-3 * 0.65))
 
 # Run 1500 seconds
-tspan = (0.0, 1.5E6)
+tspan = (0.0, 1000.0)
 prob = ODEProblem(isolated_model, u0, tspan, param)
 
 baselineSol = solve(prob, Rodas5(); reltol=1e-9, abstol=1e-9, dt=0.01, progress=true, dtmax=3000.0)
 
-paramDOX = Params(
-  pDOX = DOXParams(DOX=0.25),
-  pCK = CKParams(V_ATPASE_CYTO= 1E-5),
-  pC1 = C1Params(SCALE=1e3 * 60),
-  pC3 = C3Params(SCALE=60e3 * 40),
-  pC4 = C4Params(SCALE=60e3 * 30),
-  pC5 = C5Params(ρF1=0.05),
-  pANT = ANTParams(VMAX=5E-3),
-  pSODi = SODParams(ET=1.43E-3 * 0.65),
-  BCL=0)
+paramDOX = Params(param; pDOX = DOXParams(DOX=0.25))
 
 prob = ODEProblem(isolated_model, u0, tspan, paramDOX)
 doxSol = solve(prob, Rodas5(); reltol=1e-9, abstol=1e-9, dt=0.01, progress=true, dtmax=3000.0)
